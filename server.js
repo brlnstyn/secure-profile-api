@@ -1,7 +1,13 @@
+const connectDB = require("./src/config/db");
+
+
+// Load environment variables
 require('dotenv').config();
 
-const app = require('./src/app');
+// Connect to MongoDB
+connectDB();
 
+const app = require('./src/app');
 const PORT = process.env.PORT || 3000;
 
 if(!process.env.JWT_SECRET) {

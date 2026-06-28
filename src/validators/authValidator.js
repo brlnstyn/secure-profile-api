@@ -5,7 +5,7 @@ const registerValidator = [
         .trim()
         .notEmpty()
         .withMessage('Nama wajib diisi.')
-        .isLength({min: 3, mac: 50})
+        .isLength({min: 3, max: 50})
         .withMessage('Nama harus terdiri dari 3-50 karakter.'),
     body('email')
         .trim()

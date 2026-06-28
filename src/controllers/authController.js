@@ -1,8 +1,9 @@
 const bcrypt = require('bcryptjs')
 const {randomUUID} = require('crypto');
 const {validationResult} = require('express-validator')
-const users = require('../data/users')
+// const users = require('../data/users')
 const generateToken = require('../utils/generateToken');
+const User = require("../models/User");
 
 function validationErrorResponse(req, res) {
     const errors = validationResult(req);
@@ -31,14 +32,15 @@ function publicUser(user) {
 
 async function register(req, res, next) {
     try {
-        const invalidResponse = validationErrorResponse(req, res);
-        if (invalidResponse) return invalidResponse;
+        // const invalidResponse = validationErrorResponse(req, res);
+        // if (invalidResponse) return invalidResponse;
 
         const name = req.body.name.trim();
         const email = req.body.email.toLowerCase();
         const password = req.body.password;
 
-        const existingUser = users.find((user) => user.email === email);
+        const existingUser = await User.findByEmail(email);
+
         if (existingUser) {
             return res.status(409).json({
                 success: false,
@@ -48,21 +50,20 @@ async function register(req, res, next) {
 
         const passwordHash = await bcrypt.hash(password, 10);
         const newUser = {
-            id: randomUUID(),
             name,
             email,
-            passwordHash,
+            password: passwordHash,
             role: 'user',
             createdAt: new Date().toISOString(),
         };
 
-        users.push(newUser);
+        const createdUser = await User.create(newUser);
 
         return res.status(201).json({
             success: true,
             message: 'Registrasi berhasil',
-            data: publicUser(newUser),
-            token: generateToken(newUser),
+            data: publicUser(createdUser),
+            token: generateToken(createdUser),
         });
     } catch (error) {
         return next(error)
@@ -76,9 +77,9 @@ async function login(req, res, next) {
 
         const email = req.body.email.toLowerCase();
         const password = req.body.password;
-        const user = users.find((item) => item.email === email);
+        const user = await User.findByEmail(email);
 
-        const passwordMatches = user ? await bcrypt.compare(password, user.passwordHash) : false;
+        const passwordMatches = user ? await bcrypt.compare(password, user.password) : false;
 
         if (!passwordMatches) {
             return res.status(401).json({
@@ -106,7 +107,7 @@ async function changePassword(req, res, next) {
         const email = req.body.email;
         const { oldPassword, newPassword } = req.body;
 
-        const user = users.find((item) => item.email === email);
+        const user = await User.findByEmail(email);
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -114,7 +115,7 @@ async function changePassword(req, res, next) {
             });
         }
 
-        const passwordMatches = await bcrypt.compare(oldPassword, user.passwordHash);
+        const passwordMatches = await bcrypt.compare(oldPassword, user.password);
         if (!passwordMatches) {
             return res.status(401).json({
                 success: false,
@@ -122,7 +123,8 @@ async function changePassword(req, res, next) {
             });
         }
 
-        user.passwordHash = await bcrypt.hash(newPassword, 10);
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save()
 
         return res.status(200).json({
             success: true,

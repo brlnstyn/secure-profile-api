@@ -1,8 +1,9 @@
-const users = require('../data/users')
+// const users = require('../data/users')
 const {publicUser} = require("./authController");
+const User = require("../models/User");
 
-function getMe(req, res) {
-    const existingUser = users.find((user) => user.email === req.user.email);
+async function getMe(req, res) {
+    const existingUser = await User.findByEmail(req.user.email);
 
     return res.status(200).json({
         success: true,
@@ -10,25 +11,28 @@ function getMe(req, res) {
     });
 }
 
-function getAllUsers(req, res) {
-    const data = users.map((user) => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt,
-    }));
-    return res.status(200).json({
-        success: true,
-        data: data,
-    });
+async function getAllUsers(req, res, next) {
+    try {
+        const data = await User.find({}, 'id name email createdAt');
+        return res.status(200).json({
+            success: true,
+            data: data,
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 
-function countAllUsers(req, res) {
-    const total = users.length
-    return res.status(200).json({
-        success: true,
-        data: total
-    });
+async function countAllUsers(req, res, next) {
+    try {
+        const total = await User.countDocuments();
+        return res.status(200).json({
+            success: true,
+            data: total,
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 
 module.exports = {getMe, getAllUsers, countAllUsers};

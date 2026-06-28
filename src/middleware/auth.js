@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const users = require('../data/users');
+const User = require("../models/User");
 
-function protect(req, res, next) {
+async function protect(req, res, next) {
     const authorization = req.headers.authorization || '';
     if (!authorization.startsWith('Bearer ')) {
         return res.status(401).json({
@@ -24,7 +25,7 @@ function protect(req, res, next) {
             algorithms: ['HS256'],
         });
 
-        const user = users.find((item) => item.id = decoded.sub);
+        const user = await User.findById(decoded.sub);
 
         if (!user) {
             return res.status(401).json({
