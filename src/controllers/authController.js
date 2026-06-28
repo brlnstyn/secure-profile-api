@@ -32,8 +32,8 @@ function publicUser(user) {
 
 async function register(req, res, next) {
     try {
-        // const invalidResponse = validationErrorResponse(req, res);
-        // if (invalidResponse) return invalidResponse;
+        const invalidResponse = validationErrorResponse(req, res);
+        if (invalidResponse) return invalidResponse;
 
         const name = req.body.name.trim();
         const email = req.body.email.toLowerCase();
