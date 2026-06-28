@@ -1,11 +1,12 @@
 # Secure Profile API
 
-Praktikum keamanan web dan JWT. Proyek ini adalah sebuah RESTful API yang dibuat menggunakan Node.js dan Express, dengan fitur autentikasi JWT, rate limiting, dan role-based access control.
+Praktikum keamanan web dan JWT. Proyek ini adalah sebuah RESTful API yang dibuat menggunakan Node.js, Express, dan MongoDB sebagai database, dengan fitur autentikasi JWT, rate limiting, dan role-based access control.
 
 ## Persyaratan
 
 - Node.js
 - npm (Node Package Manager)
+- MongoDB (berjalan secara lokal atau menggunakan MongoDB Atlas)
 
 ## Cara Instalasi
 
@@ -18,13 +19,14 @@ Praktikum keamanan web dan JWT. Proyek ini adalah sebuah RESTful API yang dibuat
    ```bash
    npm install
    ```
-4. Buat file `.env` di direktori utama proyek (jika belum ada) dan sesuaikan variabel lingkungan yang diperlukan. Anda wajib mendefinisikan `JWT_SECRET` dan `PORT` (opsional, default 3000):
+4. Buat file `.env` di direktori utama proyek (jika belum ada) dan sesuaikan variabel lingkungan yang diperlukan. Anda wajib mendefinisikan `JWT_SECRET` dan `MONGO_URI`:
    ```env
    PORT=3000
    JWT_SECRET=rahasia_super_aman_anda
    CLIENT_ORIGIN=http://localhost:5173
    NODE_ENV=development
    JWT_EXPIRES_IN=1h
+   MONGO_URI=mongodb://localhost:{port_mongo_db}/{nama_database}
    ```
 
 ## Cara Menjalankan Server
